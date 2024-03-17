@@ -1,14 +1,15 @@
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 
-const LobbyScreen = () => {
+const LobbyScreen = ({route}) => {
   // Placeholder for player slots, you can replace this with actual data.
+  const {name,code} = route.params;
   const playerSlots = new Array(6).fill(null);
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>Lobby XCVQD</Text>
+        <Text style={styles.headerText}>Lobby {code}</Text>
       </View>
       <ScrollView style={styles.playerList} contentContainerStyle={styles.playerListContent}>
         {playerSlots.map((_, index) => (

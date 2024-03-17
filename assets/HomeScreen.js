@@ -15,6 +15,7 @@ const HomeScreen = ({navigation}) => {
           onChangeText={setCode}
           value={code}
           placeholder="CODE"
+          keyboardType="default"
         /> 
         <TextInput
           style={styles.input}
@@ -22,10 +23,13 @@ const HomeScreen = ({navigation}) => {
           value={name}
           placeholder="Name"
         /> 
-        <TouchableOpacity style={styles.joinButton} onPress={() => navigation.navigate('Lobby')}>
-          <Text style={styles.joinButtonText}>Join</Text>
-          
-        </TouchableOpacity>
+<TouchableOpacity
+  style={[styles.joinButton, !(name && code) && styles.disabledJoinButton]}
+  onPress={() => navigation.navigate('Lobby', {name,code})}
+  disabled={!(name && code)} // The button is disabled if either name or code is empty
+>
+  <Text style={styles.joinButtonText}>Join</Text>
+</TouchableOpacity>
       </View>
       <TouchableOpacity style={styles.createButton}>
         <Text style={styles.createButtonText}>Create Lobby</Text>
@@ -38,8 +42,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0ECF21',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: 20,
   },
   header: {
@@ -51,12 +53,13 @@ const styles = StyleSheet.create({
   },
   headerText: {
     color: '#000000',
-    fontSize: 24,
+    fontSize: 30,
   },
   inputContainer: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     marginBottom: 40,
+    width:'100%',
   },
   input: {
     flex: 1,
@@ -65,6 +68,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginRight: 10,
     backgroundColor: '#FFF',
+    width:'75%',
   },
   joinButton: {
     backgroundColor: '#6A0DAD',
@@ -79,6 +83,9 @@ const styles = StyleSheet.create({
   },
   createButtonText: {
     color: '#FFF',
+  },
+  disabledJoinButton: {
+    backgroundColor: '#aaa', // A light grey, for example, indicating it's disabled
   },
 });
 
