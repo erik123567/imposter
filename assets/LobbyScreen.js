@@ -30,9 +30,9 @@ const LobbyScreen = ({ route, navigation }) => {
       // If the game has started and the current player is not the host, navigate to InGame.
       if (gameState?.isStarted) {
         const currentPlayerId = determineCurrentPlayerId(playerName, lobbyData.players);
-        // Ensure not to navigate if the player is the host, since host's navigation is handled elsewhere.
+
         if (currentPlayerId !== lobbyData.host.id) {
-          navigation.navigate('InGame', { lobbyCode: lobbyCode, playerName: playerName });
+          navigation.navigate('InGame', { lobbyCode: lobbyCode, playerName: playerName, hostName:lobbyData.host.name });
         }
       }
     });
@@ -66,7 +66,7 @@ const LobbyScreen = ({ route, navigation }) => {
         isStarted: true,
         players: updatedPlayers,
       }).then(() => {
-        navigation.navigate('InGame', { lobbyCode: lobbyCode, playerName: playerName });
+        navigation.navigate('InGame', { lobbyCode: lobbyCode, playerName: playerName, hostName:lobbyData.host.name  });
       }).catch((error) => {
         console.error('Failed to start the game:', error);
         Alert.alert("Error", "Failed to start the game.");
