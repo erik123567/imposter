@@ -1,43 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet } from 'react-native';
 import { getDatabase, ref, onValue } from 'firebase/database';
+import { app } from './firebaseConfig'; // Ensure this points to your actual firebaseConfig file
 
-const LobbyScreen = ({ route }) => {
-  const [lobbyData, setLobbyData] = useState({ name: '', players: [] });
-  const { lobbyCode } = route.params; // Assuming you pass the lobbyCode when navigating to this screen
+const LobbyScreen = ({ route, navigation }) => {
+  const { lobbyCode, isHost } = route.params; // isHost is passed as true when the host creates the lobby
+  const [lobbyData, setLobbyData] = useState({ host: {}, players: [] });
+  const database = getDatabase(app);
 
   useEffect(() => {
-    const database = getDatabase();
     const lobbyRef = ref(database, `lobbies/${lobbyCode}`);
-
-    // Listen for updates to the lobby data
     const unsubscribe = onValue(lobbyRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
         setLobbyData({
-          name: data.name, // Assuming your lobby has a 'name' field
-          players: data.players ? Object.values(data.players) : [] // Convert players object to array
+          host: data.host,
+          players: Object.values(data.players || {}),
         });
       } else {
         console.log("Lobby doesn't exist");
-        // Handle lobby not existing, e.g., navigate back
+        // Optional: Navigate back or show a message
       }
     });
 
-    // Clean up listener
-    return () => unsubscribe();
+    return () => unsubscribe(); // Clean up the subscription
   }, [lobbyCode]);
+
+  // Example function to start the game (to be implemented)
+  const startGame = () => {
+    console.log('Game starting...');
+    // Here you could update the lobby status to "in game",
+    // navigate to a new game screen, etc.
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.lobbyName}>Lobby: {lobbyData.name}</Text>
-      <FlatList
-        data={lobbyData.players}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <Text style={styles.player}>{item.name}</Text> // Adjust based on how you store player data
-        )}
-      />
+      <Text style={styles.header}>Lobby: {lobbyCode}</Text>
+      <Text>Players in lobby:</Text>
+      {lobbyData.players.map((player, index) => (
+        <Text key={index} style={styles.player}>
+          {player.name}
+        </Text>
+      ))}
+      {isHost ? (
+        <Button title="Start Game" onPress={startGame} />
+      ) : (
+        <Text>Waiting for host to start the game...</Text>
+      )}
     </View>
   );
 };
@@ -45,11 +54,11 @@ const LobbyScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
   },
-  lobbyName: {
+  header: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,

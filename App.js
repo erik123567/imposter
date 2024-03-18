@@ -2,9 +2,9 @@ import React from 'react';
 import HomeScreen from './assets/HomeScreen'; // Make sure the path is correct
 import LobbyScreen from './assets/LobbyScreen';
 import PayWall from './assets/Paywall';
-import FirebaseTestScreen from './FirebaseTestScreen';
+import FirebaseTestScreen from './assets/FirebaseTestScreen';
 import GameScreen from './assets/GameScreen';
-import LobbyJoinScreen from './LobbyJoinScreen';
+import LobbyJoinScreen from './assets/LobbyJoinScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
