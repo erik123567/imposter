@@ -15,7 +15,7 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator initialRouteName="JoinLobby">
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Lobby" component={LobbyScreen} />
         <Stack.Screen name="PayWall" component={PayWall} />
