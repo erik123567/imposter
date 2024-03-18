@@ -37,10 +37,16 @@ const HomeScreen = ({navigation}) => {
 </TouchableOpacity>
       </View>
       <TouchableOpacity style={styles.createButton}
-      onPress={() => {playedPaid ?  navigation.navigate('Lobby', {name,code}): navigation.navigate('Paywall')}}
+      onPress={() => {playedPaid ?  navigation.navigate('TestScreen', {name,code}): navigation.navigate('Paywall')}}
       >
         
         <Text style={styles.createButtonText}>Create Lobby</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.createButton}
+      onPress={() => {navigation.navigate('JoinLobby')}}
+      >
+        
+        <Text style={styles.createButtonText}>Join Lobby</Text>
       </TouchableOpacity>
     </View>
   );

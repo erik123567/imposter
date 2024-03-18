@@ -1,22 +1,43 @@
-import React from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { getDatabase, ref, onValue } from 'firebase/database';
 
-const LobbyScreen = ({route}) => {
-  // Placeholder for player slots, you can replace this with actual data.
-  const {name,code} = route.params;
-  const playerSlots = new Array(6).fill(null);
+const LobbyScreen = ({ route }) => {
+  const [lobbyData, setLobbyData] = useState({ name: '', players: [] });
+  const { lobbyCode } = route.params; // Assuming you pass the lobbyCode when navigating to this screen
+
+  useEffect(() => {
+    const database = getDatabase();
+    const lobbyRef = ref(database, `lobbies/${lobbyCode}`);
+
+    // Listen for updates to the lobby data
+    const unsubscribe = onValue(lobbyRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        setLobbyData({
+          name: data.name, // Assuming your lobby has a 'name' field
+          players: data.players ? Object.values(data.players) : [] // Convert players object to array
+        });
+      } else {
+        console.log("Lobby doesn't exist");
+        // Handle lobby not existing, e.g., navigate back
+      }
+    });
+
+    // Clean up listener
+    return () => unsubscribe();
+  }, [lobbyCode]);
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Lobby {code}</Text>
-      </View>
-      <ScrollView style={styles.playerList} contentContainerStyle={styles.playerListContent}>
-        {playerSlots.map((_, index) => (
-          <View key={index} style={styles.playerSlot} />
-        ))}
-      </ScrollView>
-      <Text style={styles.waitingText}>waiting for players..</Text>
+      <Text style={styles.lobbyName}>Lobby: {lobbyData.name}</Text>
+      <FlatList
+        data={lobbyData.players}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <Text style={styles.player}>{item.name}</Text> // Adjust based on how you store player data
+        )}
+      />
     </View>
   );
 };
@@ -24,40 +45,18 @@ const LobbyScreen = ({route}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0ECF21',
     alignItems: 'center',
-    paddingTop: 50,
-    paddingHorizontal: 20,
+    justifyContent: 'center',
+    padding: 20,
   },
-  header: {
-    marginBottom: 20,
-  },
-  headerText: {
+  lobbyName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000',
-  },
-  playerList: {
-    width: '100%',
-    flex: 1,
-  },
-  playerListContent: {
-    alignItems: 'center',
-  },
-  playerSlot: {
-    backgroundColor: '#FFC0CB',
-    width: '100%',
-    height: 60,
-    borderRadius: 10,
-    marginBottom: 10,
-    justifyContent: 'center',
-    paddingHorizontal: 15,
-    // Add additional styling to make it look like your design.
-  },
-  waitingText: {
-    fontSize: 18,
-    color: '#000',
     marginBottom: 20,
+  },
+  player: {
+    fontSize: 18,
+    marginVertical: 4,
   },
 });
 
