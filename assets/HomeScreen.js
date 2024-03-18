@@ -4,6 +4,10 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-nativ
 const HomeScreen = ({navigation}) => {
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
+  
+
+  const playedPaid = true;
+  
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -25,13 +29,17 @@ const HomeScreen = ({navigation}) => {
         /> 
 <TouchableOpacity
   style={[styles.joinButton, !(name && code) && styles.disabledJoinButton]}
-  onPress={() => navigation.navigate('Lobby', {name,code})}
+  
+  onPress={() =>  navigation.navigate('Lobby', {name,code})}
   disabled={!(name && code)} // The button is disabled if either name or code is empty
 >
   <Text style={styles.joinButtonText}>Join</Text>
 </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.createButton}>
+      <TouchableOpacity style={styles.createButton}
+      onPress={() => {playedPaid ?  navigation.navigate('Lobby', {name,code}): navigation.navigate('Paywall')}}
+      >
+        
         <Text style={styles.createButtonText}>Create Lobby</Text>
       </TouchableOpacity>
     </View>
