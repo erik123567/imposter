@@ -18,7 +18,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="JoinLobby">
         <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Lobby" component={LobbyScreen} />
+        <Stack.Screen name="LobbyScreen" component={LobbyScreen} />
         <Stack.Screen name="PayWall" component={PayWall} />
         <Stack.Screen name="InGame" component={InGame} />
         <Stack.Screen name="JoinLobby" component={LobbyJoinScreen} />

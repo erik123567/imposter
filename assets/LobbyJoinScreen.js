@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, set, get } from 'firebase/database';
+import { getDatabase, ref, set, get, update } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
 
+// Firebase configuration and initialization
 const firebaseConfig = {
   apiKey: "AIzaSyBMJlsG1yZruHcpBR4814NQSE968NgTeXw",
   authDomain: "imposter-57927.firebaseapp.com",
@@ -16,6 +17,9 @@ const firebaseConfig = {
 };
 initializeApp(firebaseConfig);
 const database = getDatabase();
+
+let hostId;
+
 const generateLobbyCode = () => {
   let code = '';
   for (let i = 0; i < 5; i++) {
@@ -29,42 +33,30 @@ const LobbyJoinScreen = () => {
   const [playerName, setPlayerName] = useState('');
   const navigation = useNavigation();
 
+  const joinLobby = async (code, playerName) => {
+    const lobbyRef = ref(database, `lobbies/${code}`);
+    const snapshot = await get(lobbyRef);
+    if (snapshot.exists()) {
+      const newPlayerId = `player_${new Date().getTime()}`;
+      const playerData = { id: newPlayerId, name: playerName, points: 0 };
+      await set(ref(database, `lobbies/${code}/players/${newPlayerId}`), playerData);
+      return newPlayerId; // Return the playerId to use for navigation
+    } else {
+      return null; // Lobby does not exist
+    }
+  };
+
   const handleJoinLobby = async () => {
     if (!code.trim() || !playerName.trim()) {
       Alert.alert("Error", "Both player name and lobby code are required.");
       return;
     }
 
-    // Unique ID generation for each player could be improved, for example, by using Firebase Authentication UID
-    const playerDetails = {
-      id: `player_${new Date().getTime()}`,
-      name: playerName,
-    };
-
-    try {
-      const lobbyExists = await joinLobby(code, playerDetails);
-      if (lobbyExists) {
-        navigation.navigate('Lobby', { lobbyCode: code, playerName: playerName, isHost: false });
-      } else {
-        Alert.alert("Error", "Lobby does not exist.");
-      }
-    } catch (error) {
-      console.error('Error joining lobby:', error);
-      Alert.alert("Error", "Failed to join the lobby.");
-    }
-  };
-
-  const joinLobby = async (code, playerDetails) => {
-    const lobbyRef = ref(database, `lobbies/${code}`);
-
-    const snapshot = await get(lobbyRef);
-    if (snapshot.exists()) {
-      const playersRef = ref(database, `lobbies/${code}/players/${playerDetails.id}`);
-      await set(playersRef, playerDetails);
-      console.log(`Player ${playerDetails.name} joined lobby ${code}`);
-      return true;
+    const playerId = await joinLobby(code, playerName);
+    if (playerId) {
+      navigation.navigate('LobbyScreen', { lobbyCode: code, playerName, playerId, isHost: false, hostId });
     } else {
-      return false;
+      Alert.alert("Error", "Lobby does not exist.");
     }
   };
 
@@ -79,21 +71,22 @@ const LobbyJoinScreen = () => {
       snapshot = await get(lobbyRef);
     }
 
-    const hostDetails = {
-      id: `host_${new Date().getTime()}`,
-      name: playerName,
-    };
-
-    await set(lobbyRef, {
-      host: hostDetails,
+     hostId = `host_${new Date().getTime()}`;
+    const lobbyData = {
+      host: { id: hostId, name: playerName, points: 0 },
       players: {
-        [hostDetails.id]: hostDetails,
+        [hostId]: {id: hostId, name: playerName, points: 0 },
+      },
+      gameState: {
+        currentPhase: "lobby",
+        votingComplete: false,
+        inGame: false,
       },
       createdAt: Date.now(),
-    });
+    };
 
-    console.log('Lobby created with code:', code);
-    navigation.navigate('Lobby', { lobbyCode: code, playerName: playerName, isHost: true });
+    await set(lobbyRef, lobbyData);
+    navigation.navigate('LobbyScreen', { lobbyCode: code, playerName, playerId: hostId, isHost: true });
   };
 
   return (

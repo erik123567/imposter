@@ -1,54 +1,86 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { getDatabase, ref, onValue, set } from 'firebase/database';
-import { app } from './firebaseConfig';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { getDatabase, ref, onValue, set, update } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
+import { app } from './firebaseConfig';
 
 const VotingScreen = ({ route }) => {
   const { lobbyCode, playerName } = route.params;
-  const [players, setPlayers] = useState([]); // Filtered players
-  const [totalPlayers, setTotalPlayers] = useState(0); // Total players
   const navigation = useNavigation();
   const database = getDatabase(app);
+  const [players, setPlayers] = useState([]);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [voted, setVoted] = useState(false);
+
 
   useEffect(() => {
-    // Fetch all players to determine the total count
     const playersRef = ref(database, `lobbies/${lobbyCode}/gameState/players`);
     onValue(playersRef, (snapshot) => {
       if (snapshot.exists()) {
         const playersData = snapshot.val();
-        const allPlayers = Object.values(playersData);
-        setTotalPlayers(allPlayers.length); // Set total number of players
-        const filteredPlayers = allPlayers
-          .filter(player => player.name !== playerName) 
-          .map(player => ({ id: player.id, name: player.name }));
-        setPlayers(filteredPlayers); // Set filtered players
+        const formattedPlayers = Object.keys(playersData).filter((key) => playersData[key].name !== playerName)
+          .map((key) => ({ id: key, name: playersData[key].name }));
+        setPlayers(formattedPlayers);
       }
     });
+
+    return () => {
+      off(playersRef, 'value');
+    };
   }, [lobbyCode, playerName, database]);
 
   useEffect(() => {
-    // Listen for changes in the votes
-    const votesRef = ref(database, `lobbies/${lobbyCode}/votes`);
-    onValue(votesRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const votes = snapshot.val();
-        const voteCount = Object.keys(votes).length;
-        
-        // Check if all players have voted, including the current player
-        if (voteCount === totalPlayers) {
-          console.log("All votes are in, navigating to ResultsScreen");
-          navigation.navigate('ResultsScreen', { lobbyCode, playerName });
+    if (voted) {
+      const votesRef = ref(database, `lobbies/${lobbyCode}/votes`);
+      const checkVotes = onValue(votesRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const votes = snapshot.val();
+          if (Object.keys(votes).length === players.length + 1) { // All players have voted
+            // Update game phase to 'results' and navigate
+            update(ref(database, `lobbies/${lobbyCode}/gameState`), { phase: 'results' })
+              .then(() => navigation.navigate('ResultsScreen', { lobbyCode }))
+              .catch(error => console.error("Error updating game phase:", error));
+          }
         }
-      }
-    });
-  }, [totalPlayers, lobbyCode, navigation, database]);
+      });
+
+      // Clean up function to detach the listener
+      return () => checkVotes();
+    }
+  }, [voted, players.length, lobbyCode, navigation]); 
 
   const handleVote = (votedPlayerId) => {
-    const voteRef = ref(database, `lobbies/${lobbyCode}/votes/${playerName}`);
-    set(voteRef, votedPlayerId)
-      .then(() => console.log(`${playerName} voted for ${votedPlayerId}`))
-      .catch((error) => console.error("Error saving vote:", error));
+    if (!votedPlayerId) {
+      console.error('Voted player ID is undefined');
+      return;
+    }
+    
+    if (!hasVoted) {
+      const votesRef = ref(database, `lobbies/${lobbyCode}/votes/${playerName}`);
+      set(votesRef, votedPlayerId).then(() => {
+        console.log(`${playerName} voted for player ID: ${votedPlayerId}`);
+        setHasVoted(true);
+        checkAllVotesIn();
+        setVoted(true);
+      }).catch(error => console.error("Error saving vote:", error));
+
+    }
+  };
+
+  const checkAllVotesIn = () => {
+    if (hasVoted) {
+      const votesRef = ref(database, `lobbies/${lobbyCode}/votes`);
+      onValue(votesRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const votes = snapshot.val();
+          if (Object.keys(votes).length === Object.keys(players).length + 1) {
+            update(ref(database, `lobbies/${lobbyCode}/gameState`), { phase: 'results' })
+              .then(() => navigation.navigate('ResultsScreen', { lobbyCode }))
+              .catch(error => console.error("Error updating game phase:", error));
+          }
+        }
+      }, { onlyOnce: true });
+    }
   };
 
   return (
@@ -66,7 +98,6 @@ const VotingScreen = ({ route }) => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {

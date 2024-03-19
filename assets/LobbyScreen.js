@@ -1,117 +1,96 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
-import { getDatabase, ref, onValue, set } from 'firebase/database';
-import { app } from './firebaseConfig'; // Ensure this points to your actual firebaseConfig file
+import { getDatabase, ref, update, onValue } from 'firebase/database';
+import { useNavigation } from '@react-navigation/native';
+import { app } from './firebaseConfig';
 
-const LobbyScreen = ({ route, navigation }) => {
-  const { lobbyCode, playerName } = route.params;
-  const [lobbyData, setLobbyData] = useState({ host: {}, players: {}, gameState: {} });
+const LobbyScreen = ({ route }) => {
+  const { lobbyCode, playerName, isHost, playerId, hostId } = route.params;
+  const [lobbyData, setLobbyData] = useState({ host: {}, players: {} });
+  const navigation = useNavigation();
   const database = getDatabase(app);
-
+  console.log(isHost);
 
   useEffect(() => {
     const lobbyRef = ref(database, `lobbies/${lobbyCode}`);
-    const unsubscribe = onValue(lobbyRef, (snapshot) => {
+    const unsubscribe = onValue(lobbyRef, snapshot => {
       if (snapshot.exists()) {
-        const data = snapshot.val();
-        setLobbyData(data);
+        setLobbyData(snapshot.val());
       } else {
-        console.log("Lobby doesn't exist");
         Alert.alert("Error", "Lobby doesn't exist.");
         navigation.goBack();
       }
     });
-    return () => unsubscribe();
+    return unsubscribe;
   }, [lobbyCode, navigation]);
+
+  // Monitor changes to gameState
   useEffect(() => {
     const gameStateRef = ref(database, `lobbies/${lobbyCode}/gameState`);
     const unsubscribeGameState = onValue(gameStateRef, (snapshot) => {
       const gameState = snapshot.val();
-      
-      // Ensure navigation to InGame only if the game is started AND voting has not begun.
-      // This assumes `gameState.voting` becomes true or exists when the voting phase starts.
-      // Adjust the condition based on your actual gameState structure.
-      if (gameState?.isStarted && !gameState.voting) {
-        const currentPlayerId = determineCurrentPlayerId(playerName, lobbyData.players);
-  
-        if (currentPlayerId !== lobbyData.host.id) {
-          console.log('navigating to ingamescreen')
-          navigation.navigate('InGame', { lobbyCode: lobbyCode, playerName: playerName, hostName:lobbyData.host.name });
-        }
+      if (gameState && gameState.phase === "inGame") {
+        navigation.navigate('InGame', { lobbyCode, playerName, isHost, playerId, hostId });
       }
     });
-  
     return () => unsubscribeGameState();
-  }, [lobbyData, lobbyCode, navigation, playerName]);
-
-  const determineCurrentPlayerId = (name, players) => {
-    return Object.keys(players).find(key => players[key].name === name) || '';
-  };
+  }, [lobbyCode, playerName, navigation, isHost]);
 
   const startGame = async () => {
-    // Check if the current player is the host
-    const currentPlayerId = determineCurrentPlayerId(playerName, lobbyData.players);
-    const isCurrentPlayerHost = currentPlayerId === lobbyData.host.id;
+    if (isHost) {
+      // Logic to assign words and roles to players
+      const words = ["apple", "banana", "cherry", "date", "elderberry"];
+      const playerEntries = Object.entries(lobbyData.players);
+      const imposterIndex = Math.floor(Math.random() * playerEntries.length);
+      let updatedPlayers = {};
 
-    if (isCurrentPlayerHost) {
-      const words = ["apple", "banana", "cherry"]; // Example words
-      let updatedPlayers = { ...lobbyData.players };
-      const playersKeys = Object.keys(updatedPlayers);
-
-      playersKeys.forEach((key, index) => {
-        const randomWord = words[Math.floor(Math.random() * words.length)];
-        const role = (index === 0) ? "imposter" : "normal"; // Simplified logic for assigning roles
-        updatedPlayers[key] = { ...updatedPlayers[key], word: role === "imposter" ? "imposter" : randomWord, role };
+      playerEntries.forEach(([id, player], index) => {
+        updatedPlayers[id] = {
+          ...player,
+          word: index === imposterIndex ? "imposter" : words[Math.floor(Math.random() * words.length)],
+          role: index === imposterIndex ? "imposter" : "crew"
+        };
       });
 
-      await set(ref(database, `lobbies/${lobbyCode}/gameState`), {
-        isStarted: true,
-        players: updatedPlayers,
-      }).then(() => {
-        navigation.navigate('InGame', { lobbyCode: lobbyCode, playerName: playerName, hostName:lobbyData.host.name  });
-      }).catch((error) => {
-        console.error('Failed to start the game:', error);
+      // Update gameState to inGame and assign words and roles
+      await update(ref(database, `lobbies/${lobbyCode}`), {
+        gameState: {
+          phase: "inGame",
+          players: updatedPlayers
+        }
+      }).catch(error => {
         Alert.alert("Error", "Failed to start the game.");
+        console.error('Failed to start the game:', error);
       });
     } else {
-      Alert.alert("Not the Host", "Only the host can start the game.");
+      Alert.alert("Error", "Only the host can start the game.");
     }
   };
 
   return (
     <View style={styles.container}>
-    <Text style={styles.header}>Lobby: {lobbyCode}</Text>
-    <Text>Players in lobby:</Text>
-    {Object.values(lobbyData.players || {}).map((player, index) => (
-    <Text key={index} style={styles.player}>
-    {player.name}
-    </Text>
-    ))}
-    {playerName === lobbyData.host.name ? (
-    <Button title="Start Game" onPress={startGame} />
-    ) : (
-    <Text>Waiting for host to start the game...</Text>
-    )}
+      <Text style={styles.header}>Lobby: {lobbyCode}</Text>
+      <Text>Players:</Text>
+      {Object.entries(lobbyData.players || {}).map(([key, player], index) => (
+        <Text key={index}>{player.name}</Text>
+      ))}
+      {isHost && <Button title="Start Game" onPress={startGame} />}
+      {!isHost && <Text>Waiting for the host to start the game...</Text>}
     </View>
-    );
-    };
-    
-    const styles = StyleSheet.create({
-    container: {
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    },
-    header: {
-    fontSize: 24,
+  },
+  header: {
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 20,
-    },
-    player: {
-    fontSize: 18,
-    marginVertical: 4,
-    },
-    });
-    
-    export default LobbyScreen;
+  },
+});
+
+export default LobbyScreen;

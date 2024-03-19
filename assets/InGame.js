@@ -1,52 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
-import { getDatabase, ref, onValue, update,set } from 'firebase/database';
+import { getDatabase, ref, onValue, update } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
-import { app } from './firebaseConfig';
+import { app } from './firebaseConfig'; // Adjust this import as necessary
 
 const InGame = ({ route }) => {
-  const { lobbyCode, playerName, hostName} = route.params;
+  const { lobbyCode, playerName, playerId, hostId, isHost } = route.params; // Assuming playerId is passed
   const [playerData, setPlayerData] = useState(null);
-  const [isHost, setIsHost] = useState(false);
-  const [voting, setVoting] = useState(false);
   const database = getDatabase(app);
   const navigation = useNavigation();
+  //const isHost = playerId === route.params.hostId;
+  console.log(isHost);
+  console.log(hostId);
+
+
+  
 
   useEffect(() => {
-    setIsHost(playerName === hostName); // Adjust hostName retrieval as necessary
+    // Use playerId to reference the player's data
+    const playerRef = ref(database, `lobbies/${lobbyCode}/gameState/players/${playerId}`); // Adjusted to use playerId
     const gameStateRef = ref(database, `lobbies/${lobbyCode}/gameState`);
 
-    const unsubscribe = onValue(gameStateRef, (snapshot) => {
+    const playerUnsub = onValue(playerRef, (snapshot) => {
       if (snapshot.exists()) {
-        const gameState = snapshot.val();
-        if (gameState.players) {
-          const currentPlayerData = Object.values(gameState.players).find(player => player.name === playerName);
-          if (currentPlayerData) {
-            setPlayerData(currentPlayerData);
-          }
-        }
-        if (gameState.voting) {
-          console.log(`${playerName} navigating to VotingScreen`);
-          setTimeout(() => navigation.navigate('VotingScreen', { lobbyCode, playerName }), 100); // Delay navigation
-          console.log("navigating from in game delaye to vote");
-        }
+        console.log(snapshot.val());
+        setPlayerData(snapshot.val());
+      } else {
+        console.error('Player data not found');
       }
     });
 
-    return () => unsubscribe();
-  }, [lobbyCode, playerName, navigation]);
-  
+    const gameStateUnsub = onValue(gameStateRef, (snapshot) => {
+      const gameState = snapshot.val();
+      if (gameState.phase === 'voting') {
+        navigation.navigate('VotingScreen', { lobbyCode, playerName });
+      }
+    });
 
-  const endRoundAndStartVoting = async () => {
+    return () => {
+      playerUnsub();
+      gameStateUnsub();
+    };
+  }, [lobbyCode, playerName, playerId, navigation]); // Include playerId in the dependency array
+
+  const startVoting = () => {
     if (isHost) {
-      console.log('Host attempting to start voting...');
-      await set(ref(database, `lobbies/${lobbyCode}/gameState/voting`), true)
-        .then(() => console.log('Voting started.'))
-        .catch((error) => console.error('Failed to start voting:', error));
+      update(ref(database, `lobbies/${lobbyCode}/gameState`), {
+        phase: 'voting'
+      }).catch(error => console.error('Failed to transition to voting:', error));
+    } else {
+      Alert.alert('Error', 'Only the host can initiate the voting phase.');
     }
   };
-
-
 
   if (!playerData) {
     return <View style={styles.container}><Text>Loading player data...</Text></View>;
@@ -54,11 +59,8 @@ const InGame = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <Text>Your Word: {playerData?.word}</Text>
-      {isHost && (
-        <Button title="End Round and Start Voting" onPress={endRoundAndStartVoting} />
-      )}
-      {isHost && <Text>Host</Text>}
+      <Text>Your Word: {playerData.word}</Text>
+      {isHost && <Button title="Start Voting" onPress={startVoting} />}
     </View>
   );
 };
@@ -69,9 +71,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  // Add any other styles you need here
 });
 
 export default InGame;
-
-   
