@@ -8,6 +8,7 @@ const LobbyScreen = ({ route, navigation }) => {
   const [lobbyData, setLobbyData] = useState({ host: {}, players: {}, gameState: {} });
   const database = getDatabase(app);
 
+
   useEffect(() => {
     const lobbyRef = ref(database, `lobbies/${lobbyCode}`);
     const unsubscribe = onValue(lobbyRef, (snapshot) => {
@@ -23,23 +24,24 @@ const LobbyScreen = ({ route, navigation }) => {
     return () => unsubscribe();
   }, [lobbyCode, navigation]);
   useEffect(() => {
-    // Listen for changes in the game state.
     const gameStateRef = ref(database, `lobbies/${lobbyCode}/gameState`);
     const unsubscribeGameState = onValue(gameStateRef, (snapshot) => {
       const gameState = snapshot.val();
-      // If the game has started and the current player is not the host, navigate to InGame.
-      if (gameState?.isStarted) {
+      
+      // Ensure navigation to InGame only if the game is started AND voting has not begun.
+      // This assumes `gameState.voting` becomes true or exists when the voting phase starts.
+      // Adjust the condition based on your actual gameState structure.
+      if (gameState?.isStarted && !gameState.voting) {
         const currentPlayerId = determineCurrentPlayerId(playerName, lobbyData.players);
-
+  
         if (currentPlayerId !== lobbyData.host.id) {
+          console.log('navigating to ingamescreen')
           navigation.navigate('InGame', { lobbyCode: lobbyCode, playerName: playerName, hostName:lobbyData.host.name });
         }
       }
     });
-
-    return () => {
-      unsubscribeGameState();
-    };
+  
+    return () => unsubscribeGameState();
   }, [lobbyData, lobbyCode, navigation, playerName]);
 
   const determineCurrentPlayerId = (name, players) => {

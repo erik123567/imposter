@@ -28,6 +28,7 @@ const InGame = ({ route }) => {
         if (gameState.voting) {
           console.log(`${playerName} navigating to VotingScreen`);
           setTimeout(() => navigation.navigate('VotingScreen', { lobbyCode, playerName }), 100); // Delay navigation
+          console.log("navigating from in game delaye to vote");
         }
       }
     });
@@ -45,23 +46,6 @@ const InGame = ({ route }) => {
     }
   };
 
-//   useEffect(() => {
-//     const gameStateRef = ref(database, `lobbies/${lobbyCode}/gameState`);
-//     console.log(`Setting up voting listener for ${playerName}`); // Debugging line
-//     const unsubscribeGameState = onValue(gameStateRef, (snapshot) => {
-//       const gameState = snapshot.val();
-//       console.log(`${playerName} received gameState update:`, gameState); // Debugging line
-//       if (gameState?.voting) {
-//         console.log(`${playerName} navigating to VotingScreen`); // Debugging line
-//         navigation.navigate('VotingScreen', { lobbyCode, playerName });
-//       }
-//     });
-
-//     return () => {
-//         console.log(`${playerName} unsubscribing from gameState updates`); // Debugging line
-//         unsubscribeGameState();
-//     };
-// }, [lobbyCode, playerName, navigation]);
 
 
   if (!playerData) {
