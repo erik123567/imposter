@@ -38,7 +38,7 @@ const VotingScreen = ({ route }) => {
         // Check if all players have voted, including the current player
         if (voteCount === totalPlayers) {
           console.log("All votes are in, navigating to ResultsScreen");
-          navigation.navigate('ResultsScreen', { lobbyCode });
+          navigation.navigate('ResultsScreen', { lobbyCode, playerName });
         }
       }
     });
