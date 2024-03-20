@@ -5,11 +5,11 @@ import { useNavigation } from '@react-navigation/native';
 import { app } from './firebaseConfig'; // Adjust this import as necessary
 
 const InGame = ({ route }) => {
-  const { lobbyCode, playerName, playerId, hostId, isHost } = route.params; // Assuming playerId is passed
+  const { lobbyCode, playerName, playerId, hostId } = route.params; // Assuming playerId is passed
   const [playerData, setPlayerData] = useState(null);
   const database = getDatabase(app);
   const navigation = useNavigation();
-  //const isHost = playerId === route.params.hostId;
+  const isHost = playerId === route.params.hostId;
 
 
 

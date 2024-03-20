@@ -15,7 +15,7 @@ const VotingScreen = ({ route }) => {
 
   useEffect(() => {
     const playersRef = ref(database, `lobbies/${lobbyCode}/gameState/players`);
-    onValue(playersRef, (snapshot) => {
+   const listener =  onValue(playersRef, (snapshot) => {
       if (snapshot.exists()) {
         const playersData = snapshot.val();
         const formattedPlayers = Object.keys(playersData).filter((key) => playersData[key].name !== playerName)
@@ -25,7 +25,7 @@ const VotingScreen = ({ route }) => {
     });
 
     return () => {
-      off(playersRef, 'value');
+      listener();
     };
   }, [lobbyCode, playerName, database]);
 

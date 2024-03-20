@@ -10,16 +10,17 @@ const ResultsScreen = ({ route }) => {
   const [playerPoints, setPlayerPoints] = useState({});
   const database = getDatabase(app);
   const navigation = useNavigation();
+  const [allplayers, setPlayers] = useState();
 
   const isHost = hostId === playerId;
 
+
   useEffect(() => {
     const gameRef = ref(database, `lobbies/${lobbyCode}/gameState`);
-    onValue(gameRef, (snapshot) => {
+    const unsub = onValue(gameRef, (snapshot) => {
       const gameState = snapshot.val();
-      const players = gameState?.players;
-      console.log("Is host?" +isHost + hostId);
-      console.log(hostId + " :" + route.params.playerId);
+     const players = gameState?.players;
+     setPlayers(gameState?.players);
 
       const votes = gameState?.votes;
       const tally = {};
@@ -61,8 +62,56 @@ const ResultsScreen = ({ route }) => {
       });
     });
 
-    return () => gameRef.off('value');
+    return () => 
+    {
+      unsub();
+    }
   }, [lobbyCode, navigation]);
+
+  const startNextRound = async () => {
+    if (!isHost) {
+      Alert.alert("Permission Denied", "Only the host can start the next round.");
+      return;
+    }
+    console.log("in here");
+    console.log(allplayers);
+
+    const words = ["apple", "banana", "cherry", "date", "elderberry"];
+    const playerEntries = Object.entries(allplayers);
+    const imposterIndex = Math.floor(Math.random() * playerEntries.length);
+
+    const updatedPlayers = {};
+    playerEntries.forEach(([playerId, player], index) => {
+      updatedPlayers[playerId] = {
+        ...player,
+        word: index === imposterIndex ? "imposter" : words[Math.floor(Math.random() * words.length)],
+        role: index === imposterIndex ? "imposter" : "crew",
+        votesReceived: 0, // Resetting votes received
+      };
+    });
+
+
+    try {
+      await update(ref(database, `lobbies/${lobbyCode}`), {
+          votes: {},
+    });
+    } catch (error) {
+      Alert.alert("Error", "Failed to start the next round. Please try again.");
+      console.error(error);
+    }
+
+    try {
+      await update(ref(database, `lobbies/${lobbyCode}/gameState`), {
+        allplayers: updatedPlayers,
+        phase: 'inGame',
+      });
+      navigation.navigate('InGame', { lobbyCode, playerName, hostId, playerId });
+    } catch (error) {
+      Alert.alert("Error", "Failed to start the next round. Please try again.");
+      console.error(error);
+    }
+
+  };
 
   const navigateToLobby = () => {
     navigation.navigate('LobbyScreen', { lobbyCode });
@@ -78,7 +127,7 @@ const ResultsScreen = ({ route }) => {
         </Text>
       ))}
       {isHost && (
-        <Button title="Start Next Round" onPress={navigateToLobby} />
+        <Button title="Start Next Round" onPress={startNextRound} />
       )}
     </View>
   );
