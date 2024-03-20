@@ -9,7 +9,6 @@ const LobbyScreen = ({ route }) => {
   const [lobbyData, setLobbyData] = useState({ host: {}, players: {} });
   const navigation = useNavigation();
   const database = getDatabase(app);
-  console.log(isHost);
 
   useEffect(() => {
     const lobbyRef = ref(database, `lobbies/${lobbyCode}`);
@@ -30,7 +29,7 @@ const LobbyScreen = ({ route }) => {
     const unsubscribeGameState = onValue(gameStateRef, (snapshot) => {
       const gameState = snapshot.val();
       if (gameState && gameState.phase === "inGame") {
-        navigation.navigate('InGame', { lobbyCode, playerName, isHost, playerId, hostId });
+        navigation.navigate('InGame', { lobbyCode :lobbyCode, playerName: playerName, isHost: isHost, playerId:playerId, hostId:hostId });
       }
     });
     return () => unsubscribeGameState();

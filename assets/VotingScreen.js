@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { app } from './firebaseConfig';
 
 const VotingScreen = ({ route }) => {
-  const { lobbyCode, playerName } = route.params;
+  const { lobbyCode, playerName, hostId, playerId } = route.params;
   const navigation = useNavigation();
   const database = getDatabase(app);
   const [players, setPlayers] = useState([]);
@@ -38,7 +38,7 @@ const VotingScreen = ({ route }) => {
           if (Object.keys(votes).length === players.length + 1) { // All players have voted
             // Update game phase to 'results' and navigate
             update(ref(database, `lobbies/${lobbyCode}/gameState`), { phase: 'results' })
-              .then(() => navigation.navigate('ResultsScreen', { lobbyCode }))
+              .then(() => navigation.navigate('ResultsScreen', { lobbyCode, playerName,hostId:hostId, playerId:playerId  }))
               .catch(error => console.error("Error updating game phase:", error));
           }
         }
@@ -75,7 +75,7 @@ const VotingScreen = ({ route }) => {
           const votes = snapshot.val();
           if (Object.keys(votes).length === Object.keys(players).length + 1) {
             update(ref(database, `lobbies/${lobbyCode}/gameState`), { phase: 'results' })
-              .then(() => navigation.navigate('ResultsScreen', { lobbyCode }))
+              .then(() => navigation.navigate('ResultsScreen', { lobbyCode, hostId:hostId, playerName:playerName, playerId:playerId }))
               .catch(error => console.error("Error updating game phase:", error));
           }
         }

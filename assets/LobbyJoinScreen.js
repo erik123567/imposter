@@ -54,7 +54,7 @@ const LobbyJoinScreen = () => {
 
     const playerId = await joinLobby(code, playerName);
     if (playerId) {
-      navigation.navigate('LobbyScreen', { lobbyCode: code, playerName, playerId, isHost: false, hostId });
+      navigation.navigate('LobbyScreen', { lobbyCode: code, playerName, playerId, isHost: false, hostId:hostId });
     } else {
       Alert.alert("Error", "Lobby does not exist.");
     }
@@ -86,7 +86,7 @@ const LobbyJoinScreen = () => {
     };
 
     await set(lobbyRef, lobbyData);
-    navigation.navigate('LobbyScreen', { lobbyCode: code, playerName, playerId: hostId, isHost: true });
+    navigation.navigate('LobbyScreen', { lobbyCode: code, playerName, playerId: hostId, hostId:hostId, isHost: true });
   };
 
   return (

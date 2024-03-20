@@ -5,20 +5,21 @@ import { app } from './firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
 
 const ResultsScreen = ({ route }) => {
-  const { lobbyCode } = route.params;
+  const { lobbyCode, playerName, hostId, playerId } = route.params;
   const [voteResults, setVoteResults] = useState({});
   const [playerPoints, setPlayerPoints] = useState({});
-  const [isHost, setIsHost] = useState(false);
   const database = getDatabase(app);
   const navigation = useNavigation();
+
+  const isHost = hostId === playerId;
 
   useEffect(() => {
     const gameRef = ref(database, `lobbies/${lobbyCode}/gameState`);
     onValue(gameRef, (snapshot) => {
       const gameState = snapshot.val();
-      const hostName = gameState?.host?.name;
       const players = gameState?.players;
-      setIsHost(route.params.playerName === hostName);
+      console.log("Is host?" +isHost + hostId);
+      console.log(hostId + " :" + route.params.playerId);
 
       const votes = gameState?.votes;
       const tally = {};
@@ -73,6 +74,7 @@ const ResultsScreen = ({ route }) => {
       {Object.keys(playerPoints).map((playerId, index) => (
         <Text key={index} style={styles.resultText}>
           {playerId}: {playerPoints[playerId]} point(s)
+          {isHost}
         </Text>
       ))}
       {isHost && (

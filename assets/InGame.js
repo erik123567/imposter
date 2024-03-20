@@ -10,8 +10,7 @@ const InGame = ({ route }) => {
   const database = getDatabase(app);
   const navigation = useNavigation();
   //const isHost = playerId === route.params.hostId;
-  console.log(isHost);
-  console.log(hostId);
+
 
 
   
@@ -33,7 +32,7 @@ const InGame = ({ route }) => {
     const gameStateUnsub = onValue(gameStateRef, (snapshot) => {
       const gameState = snapshot.val();
       if (gameState.phase === 'voting') {
-        navigation.navigate('VotingScreen', { lobbyCode, playerName });
+        navigation.navigate('VotingScreen', { lobbyCode, playerName, hostId:hostId, playerId:playerId });
       }
     });
 
