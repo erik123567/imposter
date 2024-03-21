@@ -14,45 +14,46 @@ const ResultsScreen = ({ route }) => {
 
   const isHost = hostId === playerId;
 
-
   useEffect(() => {
+
+    const votesRef = ref(database, `lobbies/${lobbyCode}/votes`);
+    const unsub2 = onValue(votesRef, (snapshot) => {
+      const votesState = snapshot.val();
+      console.log(votesState);
+      setVoteResults(voteResults);
+    });
+
+
     const gameRef = ref(database, `lobbies/${lobbyCode}/gameState`);
     const unsub = onValue(gameRef, (snapshot) => {
       const gameState = snapshot.val();
      const players = gameState?.players;
-     setPlayers(gameState?.players);
+     setPlayers(players);
 
       const votes = gameState?.votes;
       const tally = {};
       let imposterVotes = 0;
 
-      // Count votes for each player
-      Object.values(votes || {}).forEach(vote => {
-        tally[vote] = (tally[vote] || 0) + 1;
-      });
 
       // Calculate points for imposter(s) and players
       const newPlayerPoints = {};
       Object.keys(players).forEach((playerId) => {
         const player = players[playerId];
         const playerVoteCount = tally[playerId] || 0;
-        let points = playerPoints[playerId] || 0;
-
         if (player.role === 'imposter') {
           imposterVotes += playerVoteCount;
           if (playerVoteCount === 0) {
-            points += 10; // Imposter got no votes
+            players[playerId].points += 10; // Imposter got no votes
           } else if (playerVoteCount < Object.keys(players).length / 2) {
-            points += 5; // Imposter got less than majority votes
+            players[playerId].points += 5; // Imposter got less than majority votes
           }
         } else if (playerVoteCount > 0 && votes[playerName] === playerId) {
-          points += 3; // Player correctly guessed the imposter
+          players[playerId].points += 3; // Player correctly guessed the imposter
         }
-        newPlayerPoints[playerId] = points;
+        //newPlayerPoints[playerId] = points;
       });
-
-      setVoteResults(tally);
       setPlayerPoints(newPlayerPoints);
+    
 
       // Update points in database
       Object.keys(newPlayerPoints).forEach((playerId) => {
@@ -65,6 +66,7 @@ const ResultsScreen = ({ route }) => {
     return () => 
     {
       unsub();
+      unsub2();
     }
   }, [lobbyCode, navigation]);
 
@@ -113,19 +115,16 @@ const ResultsScreen = ({ route }) => {
 
   };
 
-  const navigateToLobby = () => {
-    navigation.navigate('LobbyScreen', { lobbyCode });
-  };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Voting Results</Text>
-      {Object.keys(playerPoints).map((playerId, index) => (
-        <Text key={index} style={styles.resultText}>
-          {playerId}: {playerPoints[playerId]} point(s)
-          {isHost}
-        </Text>
-      ))}
+<Text style={styles.header}>Scores Results</Text>
+    {/* Ensure allplayers is not empty before rendering */}
+    {allplayers && Object.entries(allplayers).length > 0 && Object.entries(allplayers).map(([playerId, playerData], index) => (
+      <Text key={index} style={styles.resultText}>
+        {playerData.name}: {playerData.points} point(s)
+      </Text>
+      
+    ))}
       {isHost && (
         <Button title="Start Next Round" onPress={startNextRound} />
       )}
