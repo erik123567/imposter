@@ -57,19 +57,47 @@ const InGame = ({ route }) => {
   }
 
   return (
+    <>
     <View style={styles.container}>
-      <Text>Your Word: {playerData.word}</Text>
+      <Text style={styles.word}>{playerData.word}</Text>
       {isHost && <Button title="Start Voting" onPress={startVoting} />}
     </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flex: 1, // Use flex to ensure it fills the container but can be centered
+    justifyContent: 'center', // Center children vertically
+    alignItems: 'center', // Center children horizontally
+    alignSelf: 'center', // Center itself in its parent container
+    width: '90%', // Take up a majority of screen width
+    height: '70%', // Take up a majority of screen height, adjust as per your design
+    backgroundColor: 'lightblue', // Background color of the card
+    margin: 20, // Margin from the edges of the screen
+    padding: 20, // Padding inside the card
+    borderRadius: 20, // Rounded corners for the card-like appearance
+
+    // Shadow for iOS
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    // Elevation for Android (shadow effect)
+    elevation: 5,
+  },
+  word: {
+    fontSize: 32,
+    color: '#333', // Ensuring text color is visible on lightblue background
+    margin: 10,
+    textAlign: 'center', // Center-align the text
   },
 });
+
 
 export default InGame;

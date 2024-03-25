@@ -105,10 +105,12 @@ const ResultsScreen = ({ route }) => {
     setVotesProcessed(false);
   
     // Generate new game states, such as words and roles for each player
+
     const words = ["apple", "banana", "cherry", "date", "elderberry"];
+    const randWord = words[Math.floor(Math.random() * words.length)]
     const newPlayerStates = Object.entries(allPlayers).reduce((acc, [id, player], index, array) => {
       const newRole = index === 0 ? "imposter" : "crew"; // Simple role assignment logic
-      const newWord = newRole === "imposter" ? "imposter" : words[Math.floor(Math.random() * words.length)];
+      const newWord = newRole === "imposter" ? "imposter" : randWord;
       
       acc[id] = {
         ...player,

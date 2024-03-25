@@ -11,6 +11,7 @@ const LobbyScreen = ({ route }) => {
   const database = getDatabase(app);
 
   useEffect(() => {
+    //console.log(playerId);
     const lobbyRef = ref(database, `lobbies/${lobbyCode}`);
     const unsubscribe = onValue(lobbyRef, snapshot => {
       if (snapshot.exists()) {
@@ -20,6 +21,10 @@ const LobbyScreen = ({ route }) => {
         navigation.goBack();
       }
     });
+    console.log(lobbyData.players)
+    Object.entries(lobbyData.players || {}).forEach(([key, player]) => {
+      console.log(player);
+  });
     return unsubscribe;
   }, [lobbyCode, navigation]);
 
@@ -44,9 +49,10 @@ const LobbyScreen = ({ route }) => {
       let updatedPlayers = {};
 
       playerEntries.forEach(([id, player], index) => {
+        let word = words[Math.floor(Math.random() * words.length)];
         updatedPlayers[id] = {
           ...player,
-          word: index === imposterIndex ? "imposter" : words[Math.floor(Math.random() * words.length)],
+          word: index === imposterIndex ? "imposter" : word,
           role: index === imposterIndex ? "imposter" : "crew"
         };
       });
@@ -67,26 +73,33 @@ const LobbyScreen = ({ route }) => {
   };
 
   return (
+    <>
     <View style={styles.container}>
-      <Text style={styles.header}>Lobby: {lobbyCode}</Text>
-      <Text>Players:</Text>
-      {Object.entries(lobbyData.players || {}).map(([key, player], index) => (
-        <View style={styles.tile}>
-        <Text style={{fontSize:24}} key={index}>{player.name}</Text>
-        </View>
-      ))}
-      {isHost && <Button title="Start Game" onPress={startGame} />}
-      {!isHost && <Text>Waiting for the host to start the game...</Text>}
-    </View>
+  <Text style={styles.header}>Lobby: {lobbyCode}</Text>
+  {Object.entries(lobbyData?.players || {}).map(([key, player]) => (
+  <View style={player.id === playerId ? styles.selectedtile : styles.tile} key={key}> 
+    <Text style={{fontSize: 24}}>{player.name}</Text>
+  </View>
+))}
+  {isHost && <Button title="Start Game" onPress={startGame} />}
+  {!isHost && <Text>Waiting for the host to start the game...</Text>}
+  </View>
+  </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+    flex: 1, // Use flex to ensure it fills the container but can be centered
+    justifyContent: 'center', // Center children vertically
+    alignItems: 'center', // Center children horizontally
+    alignSelf: 'center', // Center itself in its parent container
+    width: '90%', // Take up a majority of screen width
+    height: '70%', // Take up a majority of screen height, adjust as per your design
+    backgroundColor: 'lightblue', // Background color of the card
+    margin: 20, // Margin from the edges of the screen
+    padding: 20, // Padding inside the card
+    borderRadius: 20, // Rounded corners for the card-like appearance
   },
   header: {
     fontSize: 40,
@@ -96,6 +109,15 @@ const styles = StyleSheet.create({
     width: '48%', // Almost half the container width - adjust based on your spacing needs
     height: 100, // Fixed height, but can be adjusted or made responsive
     backgroundColor: '#4D9DE0', // Tile background color
+    margin: '10px', // Small margin to create gaps between tiles
+    justifyContent: 'center', // Center content vertically within the tile
+    alignItems: 'center', // Center content horizontally within the tile
+    borderRadius: 10,
+  },
+  selectedtile: {
+    width: '48%', // Almost half the container width - adjust based on your spacing needs
+    height: 100, // Fixed height, but can be adjusted or made responsive
+    backgroundColor: 'red', // Tile background color
     margin: '10px', // Small margin to create gaps between tiles
     justifyContent: 'center', // Center content vertically within the tile
     alignItems: 'center', // Center content horizontally within the tile

@@ -91,8 +91,8 @@ const LobbyJoinScreen = () => {
 
   return (
     <>
-    <View style={styles.title}>
-      Imposter Syndrome
+    <View>
+      <Text style={styles.title}>Imposter Syndrome</Text>
     </View>
     <View style={styles.container}>
       <TextInput
@@ -107,7 +107,7 @@ const LobbyJoinScreen = () => {
         value={code}
         onChangeText={setCode}
       />
-      <Button title="Join Lobby" onPress={handleJoinLobby} disabled={!playerName.trim()} />
+      <Button title="Join Lobby" onPress={handleJoinLobby} disabled={!playerName.trim() || !code.trim()} />
       <Text style={styles.orText}>OR</Text>
       <Button title="Create Lobby" onPress={createLobby} disabled={!playerName.trim()} />
     </View>
