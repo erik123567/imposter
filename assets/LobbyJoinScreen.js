@@ -91,7 +91,7 @@ const LobbyJoinScreen = () => {
 
   return (
     <>
-    <View>
+    <View style={styles.titleContainer}>
       <Text style={styles.title}>Imposter Syndrome</Text>
     </View>
     <View style={styles.container}>
@@ -128,6 +128,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     width: '80%',
+    textAlign:'center',
   },
   orText: {
     marginVertical: 20,
@@ -135,10 +136,14 @@ const styles = StyleSheet.create({
   },
   title:{
     fontSize:60,
-    flex:1,
-    justifyContent:'center',
-    alignItems:'center',
-  }
+    textAlign:'center',
+  },
+  titleContainer:{
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: 100, // Assign a fixed height or use flex in a parent container if needed
+      width: '100%', // Ensure it spans the full width
+    },
 });
 
 export default LobbyJoinScreen;
