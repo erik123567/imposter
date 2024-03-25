@@ -11,6 +11,7 @@ const VotingScreen = ({ route }) => {
   const [players, setPlayers] = useState([]);
   const [hasVoted, setHasVoted] = useState(false);
   const [voted, setVoted] = useState(false);
+  const [votedPlayer, setVotedPlayerId] = useState();
 
 
   useEffect(() => {
@@ -58,10 +59,11 @@ const VotingScreen = ({ route }) => {
     if (!hasVoted) {
       const votesRef = ref(database, `lobbies/${lobbyCode}/votes/${playerName}`);
       set(votesRef, votedPlayerId).then(() => {
-        console.log(`${playerName} voted for player ID: ${votedPlayerId}`);
+        // console.log(`${playerName} voted for player ID: ${votedPlayerId}`);
         setHasVoted(true);
         checkAllVotesIn();
         setVoted(true);
+        setVotedPlayerId(votedPlayerId);
       }).catch(error => console.error("Error saving vote:", error));
 
     }
@@ -75,7 +77,7 @@ const VotingScreen = ({ route }) => {
           const votes = snapshot.val();
           if (Object.keys(votes).length === Object.keys(players).length + 1) {
             update(ref(database, `lobbies/${lobbyCode}/gameState`), { phase: 'results' })
-              .then(() => navigation.navigate('ResultsScreen', { lobbyCode, hostId:hostId, playerName:playerName, playerId:playerId }))
+              .then(() => navigation.navigate('ResultsScreen', { lobbyCode, hostId:hostId, playerName:playerName, playerId:playerId, votedPlayer }))
               .catch(error => console.error("Error updating game phase:", error));
           }
         }
