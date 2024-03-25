@@ -90,6 +90,10 @@ const LobbyJoinScreen = () => {
   };
 
   return (
+    <>
+    <View style={styles.title}>
+      Imposter Syndrome
+    </View>
     <View style={styles.container}>
       <TextInput
         style={styles.input}
@@ -107,6 +111,7 @@ const LobbyJoinScreen = () => {
       <Text style={styles.orText}>OR</Text>
       <Button title="Create Lobby" onPress={createLobby} disabled={!playerName.trim()} />
     </View>
+    </>
   );
 };
 
@@ -128,6 +133,12 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     fontSize: 16,
   },
+  title:{
+    fontSize:60,
+    flex:1,
+    justifyContent:'center',
+    alignItems:'center',
+  }
 });
 
 export default LobbyJoinScreen;

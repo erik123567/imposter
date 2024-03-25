@@ -71,7 +71,9 @@ const LobbyScreen = ({ route }) => {
       <Text style={styles.header}>Lobby: {lobbyCode}</Text>
       <Text>Players:</Text>
       {Object.entries(lobbyData.players || {}).map(([key, player], index) => (
-        <Text key={index}>{player.name}</Text>
+        <View style={styles.tile}>
+        <Text style={{fontSize:24}} key={index}>{player.name}</Text>
+        </View>
       ))}
       {isHost && <Button title="Start Game" onPress={startGame} />}
       {!isHost && <Text>Waiting for the host to start the game...</Text>}
@@ -87,8 +89,17 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    fontSize: 20,
+    fontSize: 40,
     fontWeight: 'bold',
+  },
+  tile: {
+    width: '48%', // Almost half the container width - adjust based on your spacing needs
+    height: 100, // Fixed height, but can be adjusted or made responsive
+    backgroundColor: '#4D9DE0', // Tile background color
+    margin: '10px', // Small margin to create gaps between tiles
+    justifyContent: 'center', // Center content vertically within the tile
+    alignItems: 'center', // Center content horizontally within the tile
+    borderRadius: 10,
   },
 });
 
