@@ -177,8 +177,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   tilesContainer: {
-    alignSelf: 'stretch',
-    maxWidth: '80%',
+    alignSelf: 'center',
   },
   tile: {
     backgroundColor: '#E0E0E0', // Light grey background for each tile

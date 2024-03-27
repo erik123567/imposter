@@ -85,18 +85,31 @@ const VotingScreen = ({ route }) => {
     }
   };
 
+  const renderPlayer = ({ item }) => {
+    const isSelected = item.id === votedPlayer;
+    return (
+      <TouchableOpacity
+        onPress={() => handleVote(item.id)}
+        style={[
+          styles.playerButton,
+          isSelected ? styles.selectedPlayerButton : styles.unselectedPlayerButton
+        ]}
+        disabled={hasVoted} // Disable additional votes after the first
+      >
+        <Text style={styles.playerName}>{item.name}</Text>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Vote for the Imposter</Text>
       <FlatList
         data={players}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleVote(item.id)} style={styles.playerButton}>
-            <Text style={styles.playerName}>{item.name}</Text>
-          </TouchableOpacity>
-        )}
+        renderItem={renderPlayer} // Use the renderPlayer method
       />
+      {hasVoted && <Text>VOTE SENT</Text>}
     </View>
   );
 };
@@ -115,8 +128,13 @@ const styles = StyleSheet.create({
   playerButton: {
     padding: 10,
     marginVertical: 8,
-    backgroundColor: '#ddd',
     borderRadius: 5,
+  },
+  selectedPlayerButton: {
+    backgroundColor: '#4CAF50', // Or any color to highlight the selected player
+  },
+  unselectedPlayerButton: {
+    backgroundColor: '#ddd', // Gray out unselected players
   },
   playerName: {
     fontSize: 18,

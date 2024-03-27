@@ -47,9 +47,9 @@ const LobbyScreen = ({ route }) => {
       const playerEntries = Object.entries(lobbyData.players);
       const imposterIndex = Math.floor(Math.random() * playerEntries.length);
       let updatedPlayers = {};
-
+      let word = words[Math.floor(Math.random() * words.length)];
       playerEntries.forEach(([id, player], index) => {
-        let word = words[Math.floor(Math.random() * words.length)];
+        
         updatedPlayers[id] = {
           ...player,
           word: index === imposterIndex ? "imposter" : word,
