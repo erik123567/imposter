@@ -37,6 +37,15 @@ const LobbyJoinScreen = () => {
     const lobbyRef = ref(database, `lobbies/${code}`);
     const snapshot = await get(lobbyRef);
     if (snapshot.exists()) {
+      const lobbyData = snapshot.val();
+  
+      // Check if the playerName already exists in the lobby
+      const playerNames = lobbyData.players ? Object.values(lobbyData.players).map(player => player.name) : [];
+      if (playerNames.includes(playerName)) {
+        console.log('Name is already taken'); // Log error or you can choose to throw an error
+        return null; // Indicates the playerName is already taken
+      }
+  
       const newPlayerId = `player_${new Date().getTime()}`;
       const playerData = { id: newPlayerId, name: playerName, points: 0 };
       await set(ref(database, `lobbies/${code}/players/${newPlayerId}`), playerData);
