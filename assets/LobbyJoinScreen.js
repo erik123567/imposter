@@ -32,6 +32,7 @@ const LobbyJoinScreen = () => {
   const [code, setCode] = useState('');
   const [playerName, setPlayerName] = useState('');
   const navigation = useNavigation();
+  const [errors, setErrors] = useState(null);
 
   const joinLobby = async (code, playerName) => {
     const lobbyRef = ref(database, `lobbies/${code}`);
@@ -42,6 +43,7 @@ const LobbyJoinScreen = () => {
       // Check if the playerName already exists in the lobby
       const playerNames = lobbyData.players ? Object.values(lobbyData.players).map(player => player.name) : [];
       if (playerNames.includes(playerName)) {
+        setErrors("Name is taken");
         console.log('Name is already taken'); // Log error or you can choose to throw an error
         return null; // Indicates the playerName is already taken
       }
@@ -104,6 +106,7 @@ const LobbyJoinScreen = () => {
       <Text style={styles.title}>Imposter Syndrome</Text>
     </View>
     <View style={styles.container}>
+      {errors && <Text>{errors}</Text>}
       <TextInput
         style={styles.input}
         placeholder="Player Name"
