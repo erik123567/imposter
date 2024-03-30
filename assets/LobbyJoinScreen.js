@@ -35,6 +35,7 @@ const LobbyJoinScreen = () => {
   const [errors, setErrors] = useState(null);
 
   const joinLobby = async (code, playerName) => {
+    setErrors(null); // Clear previous errors
     const lobbyRef = ref(database, `lobbies/${code}`);
     const snapshot = await get(lobbyRef);
     if (snapshot.exists()) {
@@ -53,9 +54,12 @@ const LobbyJoinScreen = () => {
       await set(ref(database, `lobbies/${code}/players/${newPlayerId}`), playerData);
       return newPlayerId; // Return the playerId to use for navigation
     } else {
+      setErrors("Lobby does not exist"); // Set error for non-existing lobby
+      console.log('Lobby does not exist'); // Log error or you can choose to throw an error
       return null; // Lobby does not exist
     }
   };
+  
 
   const handleJoinLobby = async () => {
     if (!code.trim() || !playerName.trim()) {
