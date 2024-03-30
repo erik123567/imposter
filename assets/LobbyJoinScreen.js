@@ -106,7 +106,7 @@ const LobbyJoinScreen = () => {
       <Text style={styles.title}>Imposter Syndrome</Text>
     </View>
     <View style={styles.container}>
-      {errors && <Text>{errors}</Text>}
+      {errors && <Text style={styles.errors}>{errors}</Text>}
       <TextInput
         style={styles.input}
         placeholder="Player Name"
@@ -156,6 +156,9 @@ const styles = StyleSheet.create({
       height: 100, // Assign a fixed height or use flex in a parent container if needed
       width: '100%', // Ensure it spans the full width
     },
+    errors: {
+      color: 'red',
+    }
 });
 
 export default LobbyJoinScreen;
