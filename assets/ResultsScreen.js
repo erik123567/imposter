@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Button, Alert } from 'react-native';
 import { getDatabase, ref, onValue, update, get } from 'firebase/database';
 import { app } from './firebaseConfig';
 import { useNavigation } from '@react-navigation/native';
+import { ScrollView } from 'react-native';
 
 const ResultsScreen = ({ route }) => {
   const { lobbyCode, playerName, hostId, playerId } = route.params;
@@ -147,16 +148,33 @@ const ResultsScreen = ({ route }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Scores Results</Text>
-      <View style={styles.tilesContainer}>
-        {Object.entries(allPlayers).map(([id, player]) => (
-          <View key={id} style={styles.tile}>
-            <Text style={styles.tileText}>
-              {player.name}: {player.points || 0} points - Votes For{player.roundPoints}: {player.votesFor || 0}
-              {player.role === 'imposter' && <Text style={styles.imposterText}>IMPOSTER</Text>}
-            </Text>
-          </View>
-        ))}
-      </View>
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.tableContainer}>
+          {Object.entries(allPlayers).map(([id, player]) => (
+            <View key={id} style={styles.tableRow}>
+              <View style={[styles.tableCell, styles.pointsCell]}>
+                <Text style={styles.cellText}>{player.points || 0}</Text>
+              </View>
+              <View style={[styles.tableCell, styles.nameCell]}>
+                <Text style={styles.cellText}>
+                  {player.name}
+                  {player.role === 'imposter' && <Text style={styles.imposterText}> IMPOSTER</Text>}
+                </Text>
+              </View>
+              <View style={[styles.tableCell, styles.votesCell]}>
+                <Text style={styles.cellText}>
+                  Votes For {player.roundPoints}: {player.votesFor || 0}
+                </Text>
+              </View>
+              <View style={[styles.tableCell, styles.votesCell]}>
+                <Text style={styles.cellText}>
+                  Round Points {player.roundPoints || 0}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
       {hostId === playerId && (
         <Button title="Start Next Round" onPress={startNextRound} />
       )}
@@ -193,6 +211,52 @@ const styles = StyleSheet.create({
   resultText: {
     fontSize: 18,
     marginVertical: 5,
+  },
+  scrollView: {
+    width: '100%',
+  },
+  tableContainer: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 5,
+    backgroundColor: '#FFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3, // for Android shadow
+  },
+  tableRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  tableCell: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    margin: 5,
+    borderRadius: 5,
+    backgroundColor: '#F8F8F8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+  },
+  cellText: {
+    fontSize: 16,
+  },
+  pointsCell: {
+    // Adjust flex ratio to your preference, if needed
+  },
+  nameCell: {
+    flex: 2, // This will be wider to accommodate longer names
+  },
+  votesCell: {
+    // Adjust flex ratio to your preference, if needed
+  },
+  imposterText: {
+    fontWeight: 'bold',
+    color: 'red',
   },
 });
 
