@@ -150,25 +150,25 @@ const ResultsScreen = ({ route }) => {
       <Text style={styles.header}>Scores Results</Text>
       <ScrollView style={styles.scrollView}>
         <View style={styles.tableContainer}>
+          <View style={styles.tableHeaderRow}>
+            <Text style={[styles.tableHeaderCell, styles.pointsHeader]}>Total Points</Text>
+            <Text style={[styles.tableHeaderCell, styles.nameHeader]}>Name</Text>
+            <Text style={[styles.tableHeaderCell, styles.votesHeader]}>Votes For</Text>
+          </View>
           {Object.entries(allPlayers).map(([id, player]) => (
             <View key={id} style={styles.tableRow}>
               <View style={[styles.tableCell, styles.pointsCell]}>
-                <Text style={styles.cellText}>{player.points || 0}</Text>
+                <Text style={styles.cellText}>{player.points || 0}{player.roundPoints > 0 && ` | (+${player.roundPoints})`}</Text>
               </View>
               <View style={[styles.tableCell, styles.nameCell]}>
                 <Text style={styles.cellText}>
                   {player.name}
-                  {player.role === 'imposter' && <Text style={styles.imposterText}> IMPOSTER</Text>}
+                  {player.role === 'imposter' && <Text style={styles.imposterText}> --- IMPOSTER</Text>}
                 </Text>
               </View>
               <View style={[styles.tableCell, styles.votesCell]}>
                 <Text style={styles.cellText}>
-                  Votes For {player.roundPoints}: {player.votesFor || 0}
-                </Text>
-              </View>
-              <View style={[styles.tableCell, styles.votesCell]}>
-                <Text style={styles.cellText}>
-                  Round Points {player.roundPoints || 0}
+                  {player.votesFor || 0}
                 </Text>
               </View>
             </View>
@@ -194,24 +194,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  tilesContainer: {
-    alignSelf: 'center',
-  },
-  tile: {
-    backgroundColor: '#E0E0E0', // Light grey background for each tile
-    padding: 15,
-    borderRadius: 10,
-    marginVertical: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tileText: {
-    fontSize: 18,
-  },
-  resultText: {
-    fontSize: 18,
-    marginVertical: 5,
-  },
   scrollView: {
     width: '100%',
   },
@@ -226,13 +208,40 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3, // for Android shadow
   },
+  tableHeaderRow: {
+    flexDirection: 'row',
+    backgroundColor: '#E6E6E6', // A slightly different color for header
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+  },
+  tableHeaderCell: {
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    margin: 5,
+    marginTop: 5, // Only add margin to the top for the header
+    marginBottom: 0, // Remove the bottom margin so the header connects to rows
+  },
+  pointsHeader: {
+    flex: 1,
+  },
+  nameHeader: {
+    flex: 2,
+  },
+  votesHeader: {
+    flex: 1,
+  },
+  roundPointsHeader: {
+    flex: 1,
+  },
   tableRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   tableCell: {
-    flex: 1,
     borderWidth: 1,
     borderColor: '#E0E0E0',
     margin: 5,
@@ -246,13 +255,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   pointsCell: {
-    // Adjust flex ratio to your preference, if needed
+    flex: 1,
   },
   nameCell: {
-    flex: 2, // This will be wider to accommodate longer names
+    flex: 2,
   },
   votesCell: {
-    // Adjust flex ratio to your preference, if needed
+    flex: 1,
+  },
+  roundPointsCell: {
+    flex: 1,
   },
   imposterText: {
     fontWeight: 'bold',
