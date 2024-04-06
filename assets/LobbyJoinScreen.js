@@ -112,8 +112,8 @@ const LobbyJoinScreen = () => {
       colors={['#14678B', '#4C1C4A']}
       style={styles.container}
     >
+      <Text style={styles.title}>IMposter syndrome</Text>
       <View style={styles.overlayContainer}>
-        <Text style={styles.title}>Lobby Join Screen</Text>
         {errors && <Text style={styles.errors}>{errors}</Text>}
         <TextInput
           style={styles.input}
@@ -149,6 +149,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: '90%',
     alignItems: 'center', // Center horizontally
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
+    color: 'white',
   },
   input: {
     height: 40,
