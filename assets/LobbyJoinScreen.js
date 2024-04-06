@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, Alert,ImageBackground  } from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, get, update } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
+
 
 // Firebase configuration and initialization
 const firebaseConfig = {
@@ -106,31 +108,32 @@ const LobbyJoinScreen = () => {
   };
 
   return (
-    <>
-    <View style={styles.titleContainer}>
-      <Text style={styles.title}>Imposter Syndrome</Text>
-    </View>
-    <View style={styles.container}>
-      {errors && <Text style={styles.errors}>{errors}</Text>}
-      <TextInput
-        style={styles.input}
-        placeholderTextColor="gray"
-        placeholder="Player Name"
-        value={playerName}
-        onChangeText={setPlayerName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholderTextColor="gray"
-        placeholder="Lobby Code (to join)"
-        value={code}
-        onChangeText={setCode}
-      />
-      <Button title="Join Lobby" onPress={handleJoinLobby} disabled={!playerName.trim() || !code.trim()} />
-      <Text style={styles.orText}>OR</Text>
-      <Button title="Create Lobby" onPress={createLobby} disabled={!playerName.trim()} />
-    </View>
-    </>
+    <LinearGradient
+      colors={['#14678B', '#4C1C4A']}
+      style={styles.container}
+    >
+      <View style={styles.overlayContainer}>
+        <Text style={styles.title}>Lobby Join Screen</Text>
+        {errors && <Text style={styles.errors}>{errors}</Text>}
+        <TextInput
+          style={styles.input}
+          placeholderTextColor="gray"
+          placeholder="Player Name"
+          value={playerName}
+          onChangeText={setPlayerName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholderTextColor="gray"
+          placeholder="Lobby Code (to join)"
+          value={code}
+          onChangeText={setCode}
+        />
+        <Button title="Join Lobby" onPress={handleJoinLobby} disabled={!playerName.trim() || !code.trim()} />
+        <Text style={styles.orText}>OR</Text>
+        <Button title="Create Lobby" onPress={createLobby} disabled={!playerName.trim()} />
+      </View>
+    </LinearGradient>
   );
 };
 
@@ -139,7 +142,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  overlayContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.7)', // White with 70% opacity
     padding: 20,
+    borderRadius: 10,
+    width: '90%',
+    alignItems: 'center', // Center horizontally
   },
   input: {
     height: 40,
@@ -147,25 +156,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     width: '80%',
-    textAlign:'center',
+    textAlign: 'center',
   },
   orText: {
     marginVertical: 20,
     fontSize: 16,
   },
-  title:{
-    fontSize:60,
-    textAlign:'center',
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
+    color: 'white',
   },
-  titleContainer:{
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: 100, // Assign a fixed height or use flex in a parent container if needed
-      width: '100%', // Ensure it spans the full width
-    },
-    errors: {
-      color: 'red',
-    }
+  errors: {
+    color: 'red',
+    marginBottom: 10,
+  },
 });
 
 export default LobbyJoinScreen;
