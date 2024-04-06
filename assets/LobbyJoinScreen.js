@@ -114,12 +114,14 @@ const LobbyJoinScreen = () => {
       {errors && <Text style={styles.errors}>{errors}</Text>}
       <TextInput
         style={styles.input}
+        placeholderTextColor="gray"
         placeholder="Player Name"
         value={playerName}
         onChangeText={setPlayerName}
       />
       <TextInput
         style={styles.input}
+        placeholderTextColor="gray"
         placeholder="Lobby Code (to join)"
         value={code}
         onChangeText={setCode}

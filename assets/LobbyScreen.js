@@ -78,7 +78,7 @@ const LobbyScreen = ({ route }) => {
   <Text style={styles.header}>Lobby: {lobbyCode}</Text>
   {Object.entries(lobbyData?.players || {}).map(([key, player]) => (
   <View style={player.id === playerId ? styles.selectedtile : styles.tile} key={key}> 
-    <Text style={{fontSize: 24}}>{player.name}</Text>
+    <Text style={{fontSize: 24, fontWeight: player.id === playerId ? 'bold' : 'normal'}}>{player.name}</Text>
   </View>
 ))}
   {isHost && <Button title="Start Game" onPress={startGame} />}
@@ -115,13 +115,24 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   selectedtile: {
-    width: '48%', // Almost half the container width - adjust based on your spacing needs
-    height: 100, // Fixed height, but can be adjusted or made responsive
-    backgroundColor: 'red', // Tile background color
-    margin: '10px', // Small margin to create gaps between tiles
-    justifyContent: 'center', // Center content vertically within the tile
-    alignItems: 'center', // Center content horizontally within the tile
-    borderRadius: 10,
+    width: '48%', // Adjust based on your needs
+    height: 100, // Fixed height, can be adjusted
+    backgroundColor: '#4D9DE9', // Background color for selected tile
+    margin: '10px', // Margin to create gaps between tiles
+    justifyContent: 'center', // Center content vertically
+    alignItems: 'center', // Center content horizontally
+    borderRadius: 10, // Rounded corners
+    borderWidth: 4, // Thickness of the border
+    borderColor: 'black', // Color of the border, choose what stands out
+    shadowColor: "#000", // Shadow color
+  shadowOffset: {
+    width: 0, // Horizontal shadow offset
+    height: 2, // Vertical shadow offset
+  },
+  shadowOpacity: 0.25, // Shadow opacity
+  shadowRadius: 3.84, // Shadow blur radius
+
+  elevation: 5
   },
 });
 
