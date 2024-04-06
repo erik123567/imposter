@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import { getDatabase, ref, onValue, set, update } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
 import { app } from './firebaseConfig';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const VotingScreen = ({ route }) => {
   const { lobbyCode, playerName, hostId, playerId } = route.params;
@@ -102,6 +103,12 @@ const VotingScreen = ({ route }) => {
   };
 
   return (
+    <>
+        <LinearGradient
+      colors={['#14678B', '#4C1C4A']}
+      style={styles.container}
+      >
+    
     <View style={styles.container}>
       <Text style={styles.header}>Vote for the Imposter</Text>
       <FlatList
@@ -111,6 +118,8 @@ const VotingScreen = ({ route }) => {
       />
       {hasVoted && <Text>VOTE SENT</Text>}
     </View>
+    </LinearGradient>
+    </>
   );
 };
 
