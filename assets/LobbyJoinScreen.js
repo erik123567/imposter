@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert,ImageBackground  } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, Alert, Image} from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, get, update } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
@@ -21,7 +21,7 @@ initializeApp(firebaseConfig);
 const database = getDatabase();
 
 let hostId;
-
+const titleImage = require("./titleImage.png")
 const generateLobbyCode = () => {
   let code = '';
   for (let i = 0; i < 5; i++) {
@@ -112,7 +112,9 @@ const LobbyJoinScreen = () => {
       colors={['#14678B', '#4C1C4A']}
       style={styles.container}
     >
-      <Text style={styles.title}>IMposter syndrome</Text>
+      <Image 
+      source={titleImage}
+      style={styles.titleImage}></Image>
       <View style={styles.overlayContainer}>
         {errors && <Text style={styles.errors}>{errors}</Text>}
         <TextInput
@@ -140,15 +142,29 @@ const LobbyJoinScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'flex-start', // Aligns children to the top of the container
+    marginTop: 0, // Make sure there's no top margin pushing everything down
+    paddingTop: 0, // Ensure there's no padding adding space at the top
+    width: '100%', // Ensure container takes full width
+  },
+  titleImage: {
+    width: '100%', // Ensures the image stretches across the full width of the screen
+    height: '30%', // Adjust this height to fit the size of your image accordingly
+    resizeMode: 'contain',
+    marginTop: 0,
+    marginBottom: 0, // Set this to '0' to remove space below the image
   },
   overlayContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.7)', // White with 70% opacity
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     padding: 20,
     borderRadius: 10,
     width: '90%',
-    alignItems: 'center', // Center horizontally
+    alignItems: 'center',
+    flex: 1, // Do not allow the container to grow
+    marginTop: 10, // Adjust this as needed to move the container up towards the title image
+    justifyContent:'center'
+    // Other styles as needed
   },
   title: {
     fontSize: 24,
