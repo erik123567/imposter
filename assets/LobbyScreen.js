@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, Button, StyleSheet, Alert,ScrollView } from 'react-native';
 import { getDatabase, ref, update, onValue } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native';
 import { app } from './firebaseConfig';
@@ -64,23 +64,22 @@ const LobbyScreen = ({ route }) => {
   };
 
   return (
-    <LinearGradient
-      colors={['#14678B', '#4C1C4A']}
-      style={styles.container}
-    >
-      <View style={styles.container}>
+    <LinearGradient colors={['#14678B', '#4C1C4A']} style={styles.container}>
+      <ScrollView style={styles.playerScrollContainer}>
         <Text style={styles.header}>Lobby: {lobbyCode}</Text>
         <View style={styles.playerContainer}>
           {Object.entries(lobbyData?.players || {}).map(([key, player]) => (
             <View style={styles.tileContainer} key={key}> 
               <View style={player.id === playerId ? styles.selectedtile : styles.tile}>
-                <Text style={{fontSize: 24, fontWeight: player.id === playerId ? 'bold' : 'normal'}}>{player.name}</Text>
+                <Text style={styles.playerName}>{player.name}</Text>
               </View>
             </View>
           ))}
         </View>
+      </ScrollView>
+      <View style={styles.buttonContainer}>
         {isHost && <Button title="Start Game" onPress={startGame} />}
-        {!isHost && <Text>Waiting for the host to start the game...</Text>}
+        {!isHost && <Text style={styles.waitingText}>Waiting for the host to start the game...</Text>}
       </View>
     </LinearGradient>
   );
@@ -89,38 +88,45 @@ const LobbyScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
+  },
+  playerScrollContainer: {
+    width: '80%',
+    backgroundColor: 'black',
+    borderRadius: 10,
+    height: '60%',
+    marginTop: 20, // Adjust as needed
   },
   header: {
     fontSize: 40,
     fontWeight: 'bold',
-    marginBottom: 20,
     color: 'white',
+    textAlign: 'center',
+    marginVertical: 20,
   },
   playerContainer: {
-    flexDirection: 'column',
-    justifyContent: 'center',
+    flexGrow: 1,
+    justifyContent: 'flex-start',
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingHorizontal: 20,
   },
   tileContainer: {
     marginVertical: 5,
   },
   tile: {
-    width: 300,
-    height: 100,
     backgroundColor: '#4D9DE0',
-    justifyContent: 'center',
-    alignItems: 'center',
     borderRadius: 10,
+    padding: 15,
+    marginHorizontal: 15,
+    marginVertical: 5,
+    alignItems: 'center',
   },
   selectedtile: {
-    width: 300,
-    height: 100,
     backgroundColor: '#4D9DE9',
-    justifyContent: 'center',
-    alignItems: 'center',
     borderRadius: 10,
     borderWidth: 4,
     borderColor: 'black',
@@ -132,7 +138,26 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    padding: 15,
+    marginHorizontal: 15,
+    marginVertical: 5,
+    alignItems: 'center',
   },
+  playerName: {
+    fontSize: 24,
+    fontWeight: 'normal', // Adjust fontWeight dynamically in the render method if needed
+    color: 'white',
+  },
+  buttonContainer: {
+    width: '80%',
+    marginBottom: 20,
+  },
+  waitingText: {
+    color: 'white',
+    fontSize: 18,
+    textAlign: 'center',
+    marginVertical: 20,
+  }
 });
 
 export default LobbyScreen;
