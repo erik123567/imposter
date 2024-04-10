@@ -132,7 +132,7 @@ const LobbyJoinScreen = () => {
           onChangeText={setCode}
         />
         <Button title="Join Lobby" onPress={handleJoinLobby} disabled={!playerName.trim() || !code.trim()} />
-        <Text style={styles.orText}>OR</Text>
+        <View style={{height: 1, backgroundColor: 'black', width: '80%', margin: 10, height: '3px'}} />
         <Button title="Create Lobby" onPress={createLobby} disabled={!playerName.trim()} />
       </View>
     </LinearGradient>
@@ -157,9 +157,9 @@ const styles = StyleSheet.create({
   },
   overlayContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    padding: 20,
+    padding: 5,
     borderRadius: 10,
-    width: '90%',
+    width: '80%',
     alignItems: 'center',
     flex: 1, // Do not allow the container to grow
     marginTop: 10, // Adjust this as needed to move the container up towards the title image
