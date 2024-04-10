@@ -63,6 +63,8 @@ const LobbyScreen = ({ route }) => {
     }
   };
 
+  const enoughPlayers = Object.keys(lobbyData.players).length >= 3;
+
   return (
     <LinearGradient colors={['#14678B', '#4C1C4A']} style={styles.container}>
       <ScrollView style={styles.playerScrollContainer}>
@@ -78,7 +80,14 @@ const LobbyScreen = ({ route }) => {
         </View>
       </ScrollView>
       <View style={styles.buttonContainer}>
-        {isHost && <Button title="Start Game" onPress={startGame} />}
+      {isHost && (
+          <Button
+            title="Start Game"
+            onPress={startGame}
+            color={enoughPlayers ? "#4D9DE0" : "#CCCCCC"} // Attempt to visually indicate disabled state, might not work on all platforms
+            disabled={!enoughPlayers}
+          />
+        )}
         {!isHost && <Text style={styles.waitingText}>Waiting for the host to start the game...</Text>}
       </View>
     </LinearGradient>
@@ -93,10 +102,13 @@ const styles = StyleSheet.create({
   },
   playerScrollContainer: {
     width: '80%',
-    backgroundColor: 'black',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderRadius: 10,
     height: '60%',
     marginTop: 20, // Adjust as needed
+  },
+  startbutton:{
+    borderRadius:10,
   },
   header: {
     fontSize: 40,
@@ -149,8 +161,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   buttonContainer: {
-    width: '80%',
+    width: '50%',
     marginBottom: 20,
+    marginTop:20,
   },
   waitingText: {
     color: 'white',
