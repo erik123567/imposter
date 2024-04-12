@@ -138,13 +138,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectedtile: {
-    backgroundColor: '#4D9DE9',
+    backgroundColor: '#4D9DEE',
     borderRadius: 10,
-    borderWidth: 4,
-    borderColor: 'black',
+    borderWidth: 3,
+    borderColor: 'white',
     shadowColor: "#000",
     shadowOffset: {
-      width: 0,
+      width: 1,
       height: 2,
     },
     shadowOpacity: 0.25,

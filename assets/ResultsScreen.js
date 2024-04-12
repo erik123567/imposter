@@ -160,7 +160,7 @@ const ResultsScreen = ({ route }) => {
               <View style={[styles.tableCell, styles.pointsCell]}>
                 <Text style={styles.cellText}>{player.points || 0}{player.roundPoints > 0 && ` | (+${player.roundPoints})`}</Text>
               </View>
-              <View style={[styles.tableCell, styles.nameCell]}>
+              <View style={[styles.tableCell, player.role === 'imposter' ? styles.imposterCell : styles.nameCell ]}>
                 <Text style={styles.cellText}>
                   {player.name}
                   {player.role === 'imposter' && <Text style={styles.imposterText}> --- IMPOSTER</Text>}
@@ -254,11 +254,19 @@ const styles = StyleSheet.create({
   cellText: {
     fontSize: 16,
   },
+  impostercell: {
+    fontSize: 16,
+  },
   pointsCell: {
     flex: 1,
   },
   nameCell: {
     flex: 2,
+  },
+  imposterCell: {
+    flex: 2,
+    borderWidth: 5,
+    backgroundColor: 'red',
   },
   votesCell: {
     flex: 1,
